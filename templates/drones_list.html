@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}Kiralık İHA'lar{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.css">
+{% endblock %}
+
+{% block content %}
+<h1>Kiralık İHA'lar</h1>
+<label for="brandFilter">Marka:</label>
+<select id="brandFilter" class="form-control w-25 d-inline-block">
+    <option value="">Tümü</option>
+    <option value="DJI">DJI</option>
+    <option value="Parrot">Parrot</option>
+    <option value="Yuneec">Yuneec</option>
+    <option value="Autel">Autel</option>
+</select>
+
+<label for="weightFilter">Ağırlık:</label>
+<select id="weightFilter" class="form-control w-25 d-inline-block">
+    <option value="">Tümü</option>
+    <option value="0-1">0-1 kg</option>
+    <option value="1-2">1-2 kg</option>
+    <option value="2-3">2-3 kg</option>
+    <option value="3-4">3-4 kg</option>
+    <option value="4+">4+ kg</option>
+</select>
+
+<table id="dronesTable" class="display table table-striped">
+    <thead>
+        <tr>
+            <th>Marka</th>
+            <th>Model</th>
+            <th>Kategori</th>
+            <th>Ağırlık</th>
+            <th>Fiyat (TL/saat)</th>
+            <th>Kirala</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Tbody will be populated by DataTables -->
+    </tbody>
+</table>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.js"></script>
+<script>
+    $(document).ready(function() {
+        var table = $('#dronesTable').DataTable({
+            "processing": true,
+            "serverSide": true,
+            "ajax": {
+                "url": "{% url 'drones_list' %}",
+                "type": "GET",
+                "data": function(d) {
+                    d.brand = $('#brandFilter').val();
+                    d.weight = $('#weightFilter').val();
+                }
+            },
+            "columns": [
+                { "data": "brand" },
+                { "data": "model" },
+                { "data": "category" },
+                { "data": "weight" },
+                { "data": "price_per_hour" },
+                { "data": "kirala" }
+            ]
+        });
+
+        $('#brandFilter').on('change', function () {
+            table.ajax.reload();
+        });
+
+        $('#weightFilter').on('change', function () {
+            table.ajax.reload();
+        });
+    });
+</script>
+{% endblock %}

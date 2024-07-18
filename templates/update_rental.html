@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+
+{% block title %}Kiralama Güncelleme{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>Kiralama Güncelleme</h1>
+        <form id="updateRentalForm" method="post">
+            {% csrf_token %}
+            Başlangıç Zamanı: <input type="datetime-local" name="start_time" value="{{ form.start_time.value|date:'Y-m-d\TH:i' }}" required><br>
+            Bitiş Zamanı: <input type="datetime-local" name="end_time" value="{{ form.end_time.value|date:'Y-m-d\TH:i' }}" required><br>
+            <button type="submit" class="btn btn-primary mt-3">Güncelle</button>
+        </form>
+    </div>
+
+    <div id="message" class="mt-4"></div>
+{% endblock %}
+
+{% block extra_js %}
+    <script>
+        document.getElementById('updateRentalForm').addEventListener('submit', function(event) {
+            event.preventDefault(); // Formun otomatik gönderimini engelle
+
+            fetch(this.action, {
+                method: this.method,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams(new FormData(this))
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    showMessage('Kiralama kaydı başarıyla güncellendi.');
+                } else {
+                    showMessage('Kiralama kaydı güncellenirken bir hata oluştu.');
+                    throw new Error('İstek sırasında bir hata oluştu.'); // Hata durumunda hata fırlat
+                }
+            })
+            .catch(error => {
+                showMessage(error.message); // Hata mesajını göster
+            });
+        });
+
+        function showMessage(message) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="alert alert-info">${message}</div>`;
+        }
+    </script>
+{% endblock %}

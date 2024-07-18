@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil{% endblock %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h1>{{ user.username }} Profil</h1>
+        <h2 class="mt-4">Kiralama Kayıtları</h2>
+        <ul class="list-group mt-3">
+            {% for rental in rentals %}
+                <li class="list-group-item" id="rental-{{ rental.id }}">
+                    <strong>Drone:</strong> {{ rental.drone.brand }} {{ rental.drone.model }}<br>
+                    <strong>Başlangıç Zamanı:</strong> {{ rental.start_time }}<br>
+                    <strong>Bitiş Zamanı:</strong> {{ rental.end_time }}<br>
+                    <strong>Toplam Fiyat:</strong> {{ rental.total_price }} TL<br>
+                    <button onclick="deleteRental('{{ rental.id }}')" class="btn btn-danger btn-sm mt-2">Sil</button>
+                    <a href="{% url 'update_rental' rental.id %}" class="btn btn-warning btn-sm mt-2">Güncelle</a>
+                </li>
+            {% empty %}
+                <li class="list-group-item">Hiçbir kiralama kaydı bulunamadı.</li>
+            {% endfor %}
+        </ul>
+        <div id="message" class="mt-4"></div>
+    </div>
+
+    <script>
+        function deleteRental(rentalId) {
+            fetch(`/rental/${rentalId}/delete`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => {
+                if (response.status === 200) {
+                    document.getElementById(`rental-${rentalId}`).remove();
+                    showMessage('Kiralama kaydı başarıyla silindi.');
+                } else {
+                    showMessage('Kiralama kaydı silinirken bir hata oluştu.');
+                    throw new Error('İstek sırasında bir hata oluştu.'); // Hata durumunda hata fırlatır
+                }
+            })
+            .catch(error => {
+                showMessage(error.message); // Hata mesajını gösterir
+            });
+        }
+
+        function showMessage(message) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="alert alert-info">${message}</div>`;
+        }
+
+    </script>
+{% endblock %}

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}İHA Kiralama{% endblock %}
+
+{% block content %}
+    <h1>{{ drone.brand }} {{ drone.model }} Kiralama</h1>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="start_time">Başlangıç Zamanı:</label>
+            <input type="datetime-local" id="start_time" name="start_time" class="form-control" required>
+        </div>
+        <div class="form-group">
+            <label for="end_time">Bitiş Zamanı:</label>
+            <input type="datetime-local" id="end_time" name="end_time" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Kirala</button>
+    </form>
+{% endblock %}
